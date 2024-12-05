@@ -2,7 +2,7 @@ name := "advent-of-code"
 version := "1.0"
 scalaVersion := "2.12.16"
 
-val SparkVersion: String = "3.3.0"
+val SparkVersion: String = "3.5.3"
 
 libraryDependencies += "org.apache.spark" %% "spark-core" % SparkVersion
 libraryDependencies += "org.apache.spark" %% "spark-sql" % SparkVersion

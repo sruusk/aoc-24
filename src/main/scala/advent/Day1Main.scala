@@ -1,14 +1,8 @@
 package advent
 
-import advent.Day2Main.{df, spark}
-import org.apache.spark.SparkConf
-import org.apache.spark.sql.{Column, DataFrame, Row, SQLContext, SparkSession, functions}
-import org.apache.spark.sql.types.{ArrayType, DataType, IntegerType, StringType, StructField, StructType}
-import org.apache.spark.sql.functions.{array, asc, avg, col, count, desc, explode, max, min, sum, udf, year}
-import org.apache.spark.storage.StorageLevel
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.log4j.Logger
-import org.apache.log4j.Level
+import org.apache.spark.sql.functions.{asc, col, sum}
+import org.apache.spark.sql.types.{IntegerType, StructType}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession, functions}
 
 
 object Day1Main extends App {
@@ -31,7 +25,7 @@ object Day1Main extends App {
   private val df: DataFrame = spark.read
     .option("delimiter", "   ")
     .schema(schema)
-    .csv("data/input.txt")
+    .csv("data/day1-input.txt")
 
 
   // Sort the two columns separately
