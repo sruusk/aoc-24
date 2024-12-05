@@ -1,6 +1,5 @@
 package advent
-
-import org.apache.spark.sql.functions.regexp_extract_all
+import advent.Day2Main.spark
 import org.apache.spark.sql.types.{IntegerType, StructType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -18,25 +17,35 @@ object Day3Main extends App {
 
   spark.conf.set("spark.sql.shuffle.partitions", "5")
 
-  val schema = new StructType()
-    .add("number1", IntegerType, nullable = true)
-    .add("number2", IntegerType, nullable = true)
-
-
   private val df: DataFrame = spark.read
     .textFile("data/day3-input.txt")
     .toDF("line")
 
-  df.show()
+  private val pattern = raw"""mul\((\d+),(\d+)\)|(do(?:n't)?(?=\(\)))""".r
 
-  private val pattern = """mul\((\d+),(\d+)\)""".r
+  private val multiples = spark.sparkContext.longAccumulator("multiples")
+  private val enabledMultiples = spark.sparkContext.longAccumulator("enabledMultiples")
 
-  private val df2 = df
-    .withColumn("number1", regexp_extract_all(df("line"), pattern.toString(), 1).cast(IntegerType))
-    .withColumn("number2", regexp_extract_all(df("line"), pattern.toString(), 2).cast(IntegerType))
-    .drop("line")
+  private var enabled: Boolean = true
 
-  df2.show()
+  df.foreach(row => {
+    val line = row.getString(0)
+    val matches = pattern.findAllMatchIn(line)
+    matches.foreach(m => {
+      val action = m.group(3)
+      if(action != null) {
+        enabled = action == "do"
+      } else {
+        val number1 = m.group(1).toLong
+        val number2 = m.group(2).toLong
+        multiples.add(number1 * number2)
+        if(enabled) enabledMultiples.add(number1 * number2)
+      }
+    })
+  })
+
+  println(s"Multiples: ${multiples.value}")
+  println(s"Enabled multiples: ${enabledMultiples.value}")
 
 
 
