@@ -1,6 +1,6 @@
 name := "advent-of-code"
 version := "1.0"
-scalaVersion := "2.12.16"
+scalaVersion := "2.13.15"
 
 val SparkVersion: String = "3.5.3"
 
