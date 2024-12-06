@@ -25,7 +25,8 @@ object Day4Main extends App {
     .toDF("lines")
 
   private val lines = df.collect().map(row => row.getString(0).split(""))
-  private val newLines: ArrayBuffer[String] = ArrayBuffer()
+  private val tlDiagonals: ArrayBuffer[String] = ArrayBuffer()
+  private val trDiagonals: ArrayBuffer[String] = ArrayBuffer()
 
   for(i <- lines.indices) {
     var tlToBrLower = "" // top-left to bottom-right lower diagonal
@@ -42,14 +43,15 @@ object Day4Main extends App {
       }
       x += 1
     }
-    newLines += tlToBrLower
-    newLines += tlToBrUpper
-    newLines += trToBlLower
-    newLines += trToBlUpper
+    tlDiagonals += tlToBrLower
+    if(tlToBrUpper.nonEmpty) tlDiagonals.prepend(tlToBrUpper)
+    trDiagonals += trToBlLower
+    if(trToBlUpper.nonEmpty) trDiagonals.prepend(trToBlUpper)
   }
 
   private val pattern = raw"""XMAS""".r
-  private val allLines: Array[String] = lines.map(_.mkString("")) ++ newLines ++ lines.transpose.map(_.mkString(""))
+  private val allLines: Array[String] =
+    lines.map(_.mkString("")) ++ lines.transpose.map(_.mkString("")) ++ tlDiagonals ++ trDiagonals
 
   private var occurrences = 0
   allLines.foreach(line => {
@@ -57,7 +59,34 @@ object Day4Main extends App {
     occurrences += matches.size
   })
 
-  println(s"Occurrences: $occurrences")
+  println(s"XMAS: $occurrences")
+
+
+  // Part 2
+  private val centerIndex = tlDiagonals.length / 2
+  private val xmasPattern = raw"""MAS""".r
+  private val samxPattern = raw"""SAM""".r
+  private var occurrences2 = 0
+  for(i <- tlDiagonals.indices) {
+    // First find indexes of all occurrences of X-MAS in the diagonals
+    val tlMatches = xmasPattern.findAllMatchIn(tlDiagonals(i)).toSeq ++ samxPattern.findAllMatchIn(tlDiagonals(i)).toSeq
+    tlMatches.foreach(m => {
+      // Get the center of the match.
+      val center = m.start + 1
+      // Calculate the index of the match in trDiagonals
+      val trIndex = Math.abs(centerIndex - i) + (2 * center)
+      // Get the matches in trDiagonals
+      val trMatches = xmasPattern.findAllMatchIn(trDiagonals(trIndex)).toSeq ++ samxPattern.findAllMatchIn(trDiagonals(trIndex)).toSeq
+      // Compare the indexes of the matches
+      trMatches.foreach(m2 => {
+        val center2 = m2.start + 1
+        val tlIndex = Math.abs(centerIndex - trIndex) + (2 * center2)
+        if(tlIndex == i) occurrences2 += 1
+      })
+    })
+  }
+
+  println(s"X-MAS: $occurrences2")
 
   // Stop the Spark session
   spark.stop()
