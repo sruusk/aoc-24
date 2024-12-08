@@ -63,8 +63,7 @@ object Day7Main extends App {
         .map(_.toString.toLong)
         .toArray
       breakable {
-        var foundPart1 = false
-        var foundPart2 = false
+        var foundPart2: Boolean = false
         for(multiply <- 0 until Math.pow(2, values.length).toInt) {
           // Part 1
           var part1Total: Long = 0L
@@ -74,26 +73,30 @@ object Day7Main extends App {
             if((multiply & (1 << x)) != 0) part1Total *= values(x)
             else part1Total += values(x)
           }
-          if(part1Total == target && !foundPart1) {
-            part1Acc.add(part1Total)
-            foundPart1 = true
+          if(part1Total == target) {
+            part1Acc.add(target.toLong)
+            if(!foundPart2) part2Acc.add(target)
+            break
           }
           // Part 2
-          for(concat <- 0 until Math.pow(2, values.length).toInt) {
-            var part2Total: BigInt = BigInt(0)
-            for(x <- values.indices) {
-              // If the multiply bit is set, then we multiply the value
-              // If the concat bit is set, then we concatenate the value
-              // Otherwise, we add the value
-              if((multiply & (1 << x)) != 0) part2Total *= values(x)
-              else if((concat & (1 << x)) != 0) part2Total = BigInt(part2Total.toString + values(x).toString)
-              else part2Total += values(x)
+          breakable {
+            if(foundPart2) break
+            for(concat <- 0 until Math.pow(2, values.length).toInt) {
+              var part2Total: BigInt = BigInt(0)
+              for(x <- values.indices) {
+                // If the multiply bit is set, then we multiply the value
+                // If the concat bit is set, then we concatenate the value
+                // Otherwise, we add the value
+                if((multiply & (1 << x)) != 0) part2Total *= values(x)
+                else if((concat & (1 << x)) != 0) part2Total = BigInt(part2Total.toString + values(x).toString)
+                else part2Total += values(x)
+              }
+              if(part2Total == target) {
+                part2Acc.add(part2Total)
+                foundPart2 = true
+                break
+              }
             }
-            if(part2Total == target && !foundPart2) {
-              part2Acc.add(part2Total)
-              foundPart2 = true
-            }
-            if(foundPart1 && foundPart2) break
           }
         }
       }
