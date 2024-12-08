@@ -68,7 +68,6 @@ object Day6Main extends App {
       if (isObstructed(x, y)) possibleObstructions.add(1)
     }
   })
-  println()
 
   println(s"Possible obstructions: ${possibleObstructions.value}")
 
