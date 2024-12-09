@@ -70,35 +70,35 @@ object Day9Main extends App {
   // Part 2
   private val part2Blocks: ArrayBuffer[String] = diskBlocks.clone()
   // Group freeIndexes into groups of sequential indexes
-  private val groupedFreeDiskBlocks: ArrayBuffer[ArrayBuffer[Int]] = getGroupedIndexes(part2FreeDiskBlocks)
+  private val groupedFreeBlockIndexes: ArrayBuffer[ArrayBuffer[Int]] = getGroupedIndexes(part2FreeDiskBlocks)
   // Group blocks into groups of sequential indexes
-  private val groupedBlocks: ArrayBuffer[ArrayBuffer[Int]] = getGroupedBlockIndexes(
+  private val groupedBlockIndexes: ArrayBuffer[ArrayBuffer[Int]] = getGroupedBlockIndexes(
     part2Blocks.zipWithIndex
       .filter(_._1 != ".")
   )
 
   breakable {
-    for( i <- groupedBlocks.length - 1 to 0 by -1) {
-      val block = groupedBlocks(i)
-      if(groupedFreeDiskBlocks.isEmpty) break
-      if(groupedFreeDiskBlocks.head(0) >= block(0)) break
+    for( i <- groupedBlockIndexes.length - 1 to 0 by -1) {
+      val blockIndexes = groupedBlockIndexes(i)
+      if(groupedFreeBlockIndexes.isEmpty) break
+      if(groupedFreeBlockIndexes.head(0) >= blockIndexes(0)) break
       breakable {
-        val freeBlock = groupedFreeDiskBlocks.find(freeBlock => {
-          freeBlock.length >= block.length
+        val freeBlock = groupedFreeBlockIndexes.find(freeBlock => {
+          freeBlock.length >= blockIndexes.length
         })
         if(freeBlock.isEmpty) break
-        if(freeBlock.get(0) >= block(0)) break
-        for(j <- block.indices) {
+        if(freeBlock.get(0) >= blockIndexes(0)) break
+        for(j <- blockIndexes.indices) {
           val freeIndex = freeBlock.get(j)
-          val fromIndex = block(j)
+          val fromIndex = blockIndexes(j)
           part2Blocks(freeIndex) = part2Blocks(fromIndex)
           part2Blocks(fromIndex) = "."
         }
-        val fbIndex = groupedFreeDiskBlocks.indexOf(freeBlock.get)
-        if(freeBlock.get.length == block.length) {
-          groupedFreeDiskBlocks.remove(fbIndex)
+        val fbIndex = groupedFreeBlockIndexes.indexOf(freeBlock.get)
+        if(freeBlock.get.length == blockIndexes.length) {
+          groupedFreeBlockIndexes.remove(fbIndex)
         } else {
-          groupedFreeDiskBlocks(fbIndex) = freeBlock.get.drop(block.length)
+          groupedFreeBlockIndexes(fbIndex) = freeBlock.get.drop(blockIndexes.length)
         }
       }
     }
