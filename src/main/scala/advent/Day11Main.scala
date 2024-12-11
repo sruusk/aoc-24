@@ -26,15 +26,15 @@ object Day11Main extends App {
     .textFile("data/day11-input.txt")
     .toDF("lines")
 
-  // Measure execution time
-  val start = System.nanoTime()
-
   private case class Stone(_1: Long, _2: String)
 
   private val inputStones: Array[Stone] = df.collect()(0)
     .getString(0)
     .split(" ")
     .map(s => Stone(s.toLong, s))
+
+  // Measure execution time after reading the input
+  val start = System.nanoTime()
 
   @tailrec
   private def processStones(stones: ArrayBuffer[Stone], blinks: Int): ArrayBuffer[Stone] = {
